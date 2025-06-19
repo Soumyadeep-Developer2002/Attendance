@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body> 
+    <div class="wrapper">
+       <nav class="nav">
+           <div class="nav-logo">
+               <p>BIOMETRIC ATTENDANCE SYSTEM</p>
+           </div>
+           <div class="nav-menu" id="navMenu">
+               <ul>
+                   <li><a href="/teacher-dashboard" class="link active">Dashboard</a></li>
+                   <li><a href="#" class="link" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</a></li>
+                   <li><a href="/contact" class="link">Contact</a></li>
+                   <li><a href="/about" class="link">About Us</a></li>
+                   <li><a href="/logout" class="link">Logout</a></li>
+               </ul>
+           </div>
+       </nav>
+
+       <!-- Edit Profile Modal -->
+       <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+           <div class="modal-dialog">
+               <div class="modal-content">
+                   <div class="modal-header">
+                       <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                   </div>
+                   <div class="modal-body">
+                       <form action="{{ url_for('update_teacher_profile') }}" method="POST" enctype="multipart/form-data">
+                           {{ profile_form.hidden_tag() }}
+                           
+                           <div class="mb-3">
+                               <label class="form-label">Name</label>
+                               {{ profile_form.Name(class="form-control", value=current_user.Name) }}
+                           </div>
+
+                           <div class="mb-3">
+                               <label class="form-label">Email</label>
+                               {{ profile_form.Email_id(class="form-control", value=current_user.Email_id) }}
+                           </div>
+
+                           <div class="mb-3">
+                               <label class="form-label">Phone Number</label>
+                               {{ profile_form.Phone_Number(class="form-control", value=current_user.Phone_Number) }}
+                           </div>
+
+                           <div class="mb-3">
+                               <label class="form-label">Upload New Photo</label>
+                               {{ profile_form.Photo(class="form-control") }}
+                           </div>
+
+                           <hr>
+                           <h6>Change Password</h6>
+                           <div class="mb-3">
+                               <label class="form-label">Current Password</label>
+                               {{ profile_form.Current_Password(class="form-control") }}
+                           </div>
+
+                           <div class="mb-3">
+                               <label class="form-label">New Password</label>
+                               {{ profile_form.New_Password(class="form-control") }}
+                           </div>
+
+                           <div class="mb-3">
+                               <label class="form-label">Confirm New Password</label>
+                               {{ profile_form.Confirm_Password(class="form-control") }}
+                           </div>
+
+                           <div class="text-end">
+                               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                               {{ profile_form.Submit(class="btn btn-primary") }}
+                           </div>
+                       </form>
+                   </div>
+               </div>
+           </div>
+       </div>
+
+    <div class="container mt-4">
+        <h2>Teacher Dashboard</h2>
+        
+        <!-- Profile Information -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        {% if current_user.Photo %}
+                        <img src="{{ current_user.Photo }}" alt="Teacher Profile" class="profile-image">
+                        {% else %}
+                        <img src="https://via.placeholder.com/150" alt="Default Profile" class="profile-image">
+                        {% endif %}
+                        <h5 class="card-title">{{ current_user.Name }}</h5>
+                        <p class="text-muted">Teacher ID: {{ current_user.Teacher_ID }}</p>
+                        <hr>
+                        <p><strong>Institute:</strong> {{ current_user.Institute_Name }}</p>
+                        <p><strong>Email:</strong> {{ current_user.Email_id }}</p>
+                        <p><strong>Phone:</strong> {{ current_user.Phone_Number }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Management -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Attendance Management</h5>
+                        
+                        <!-- Upload Class Photo Form -->
+                        <form method="POST" action="{{ url_for('upload_class_photo') }}" enctype="multipart/form-data" class="mb-4">
+                            {{ form.csrf_token }}
+                            <div class="mb-3">
+                                <label for="class_photo" class="form-label">Upload Class Photo</label>
+                                {{ form.class_photo(class="form-control") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="date" class="form-label">Date</label>
+                                {{ form.date(class="form-control", type="date") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject</label>
+                                {{ form.subject(class="form-control") }}
+                            </div>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </form>
+
+                        <!-- Get Attendance Button -->
+                        <div class="mb-4">
+                            <a href="{{ url_for('get_attendance_csv') }}" class="btn btn-success">Download Attendance CSV</a>
+                        </div>
+
+                        <!-- Today's Attendance -->
+                        <h6>Today's Attendance ({{ today_date }})</h6>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attendance in today_attendance %}
+                                    <tr>
+                                        <td>{{ attendance.student.Student_ID }}</td>
+                                        <td>{{ attendance.student.Name }}</td>
+                                        <td>
+                                            {% if attendance.is_present %}
+                                            <span class="badge bg-success">Present</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Absent</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

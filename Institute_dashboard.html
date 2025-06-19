@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institute Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+        .stats-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+        .progress-bar[data-width] {
+            width: var(--progress-width);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">BIOMETRIC ATTENDANCE SYSTEM</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/Institute-dashboard">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#enrollTeacherModal">Enroll Teacher</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Enroll Teacher Modal -->
+        <div class="modal fade" id="enrollTeacherModal" tabindex="-1" aria-labelledby="enrollTeacherModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="enrollTeacherModalLabel">Enroll New Teacher</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('enroll_teacher') }}" method="POST">
+                            {{ teacher_form.hidden_tag() }}
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Teacher Name</label>
+                                {{ teacher_form.Name(class="form-control") }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Teacher ID</label>
+                                {{ teacher_form.Teacher_ID(class="form-control") }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                {{ teacher_form.Email_id(class="form-control") }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                {{ teacher_form.Password(class="form-control") }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Year 1</label>
+                                {{ teacher_form.Year1(class="form-control") }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subject 1</label>
+                                {{ teacher_form.Subject1(class="form-control") }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Year 2</label>
+                                {{ teacher_form.Year2(class="form-control") }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subject 2</label>
+                                {{ teacher_form.Subject2(class="form-control") }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Year 3</label>
+                                {{ teacher_form.Year3(class="form-control") }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subject 3</label>
+                                {{ teacher_form.Subject3(class="form-control") }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Year 4</label>
+                                {{ teacher_form.Year4(class="form-control") }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subject 4</label>
+                                {{ teacher_form.Subject4(class="form-control") }}
+                            </div>
+
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                {{ teacher_form.Submit(class="btn btn-primary") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-4">
+            <div class="row">
+                <!-- Institute Profile Section -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            {% if current_user.Photo %}
+                            <img src="{{ current_user.Photo }}" alt="Institute Profile" class="profile-image">
+                            {% else %}
+                            <img src="https://via.placeholder.com/150" alt="Default Profile" class="profile-image">
+                            {% endif %}
+                            <h4>{{ current_user.Name }}</h4>
+                            <p class="text-muted">Institute ID: {{ current_user.Institute_ID }}</p>
+                            <hr>
+                            <p><strong>Institute:</strong> {{ current_user.Institute_Name }}</p>
+                            <p><strong>Email:</strong> {{ current_user.Email_id }}</p>
+                            <p><strong>Phone:</strong> {{ current_user.Phone_Number }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall Statistics -->
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="stats-card">
+                                <h5>Total Teachers</h5>
+                                <h3>{{ total_teachers }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-card">
+                                <h5>Total Students</h5>
+                                <h3>{{ total_students }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-card">
+                                <h5>Average Attendance</h5>
+                                <h3>{{ average_attendance }}%</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher List -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Teacher List</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Teacher Name</th>
+                                            <th>Teacher ID</th>
+                                            <th>Email</th>
+                                            <th>Subjects</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for teacher in teachers %}
+                                        <tr>
+                                            <td>{{ teacher.Name }}</td>
+                                            <td>{{ teacher.Teacher_ID }}</td>
+                                            <td>{{ teacher.Email_id }}</td>
+                                            <td>
+                                                {% for subject in teacher.subjects %}
+                                                <div>{{ subject.Year }} Year: {{ subject.Subject }}</div>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student List -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Student List</h5>
+                            {% if students %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Student Name</th>
+                                            <th>Student ID</th>
+                                            <th>Email</th>
+                                            <th>Phone Number</th>
+                                            <th>Registration Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for student in students %}
+                                        <tr>
+                                            <td>{{ student.Name }}</td>
+                                            <td>{{ student.Student_ID }}</td>
+                                            <td>{{ student.Email_id }}</td>
+                                            <td>{{ student.Phone_Number }}</td>
+                                            <td>{{ student.Registration_Date.strftime('%Y-%m-%d') if student.Registration_Date else 'N/A' }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                No students found in this institute.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
